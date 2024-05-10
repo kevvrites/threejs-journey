@@ -6,7 +6,17 @@ import GUI from 'lil-gui'
 /**
  * Debug
  */
-const gui = new GUI()
+const gui = new GUI({
+    width: 300,
+    title: 'Debug UI',
+    closeFolders: false
+})
+
+window.addEventListener('keydown', (event) => {
+    if(event.key == 'h') {
+        gui.show(gui._hidden)
+    }
+})
 const debugObject = {}
 
 /**
@@ -24,20 +34,22 @@ const scene = new THREE.Scene()
 debugObject.color = "#ee0000"
 
 const geometry = new THREE.BoxGeometry(1, 1, 1, 2, 2, 2)
-const material = new THREE.MeshBasicMaterial({ color: debugObject.color })
+const material = new THREE.MeshBasicMaterial({ color: debugObject.color, wireframe: true })
 const mesh = new THREE.Mesh(geometry, material)
 scene.add(mesh)
 
-gui
+const cubeTweaks = gui.addFolder('Tweaks')
+
+cubeTweaks
     .add(mesh.position, 'y')
     .min(-3)
     .max(3)
     .step(0.01)
     .name('elevation')
 
-gui.add(mesh, 'visible')
-gui.add(material, 'wireframe')
-gui
+cubeTweaks.add(mesh, 'visible')
+cubeTweaks.add(material, 'wireframe')
+cubeTweaks
     .addColor(debugObject, 'color')
     .onChange((value) => {
         material.color.set(debugObject.color)
@@ -46,8 +58,21 @@ gui
 debugObject.spin = () => {
     gsap.to(mesh.rotation, { y: mesh.rotation.y + Math.PI * 2})
 }
-gui.add(debugObject, 'spin')
+cubeTweaks.add(debugObject, 'spin')
 
+debugObject.subdivision = 2
+cubeTweaks
+    .add(debugObject, 'subdivision')
+    .min(1)
+    .max(20)
+    .step(1)
+    .onFinishChange(() => {
+        mesh.geometry.dispose()
+        mesh.geometry = new THREE.BoxGeometry(
+            1, 1, 1,
+            debugObject.subdivision, debugObject.subdivision, debugObject.subdivision
+        )
+    })
 /**
  * Sizes
  */
