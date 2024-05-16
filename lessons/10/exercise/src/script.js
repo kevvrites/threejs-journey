@@ -1,11 +1,39 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
-const image = new Image()
+/**
+ * Textures
+ */
+const loadingManager = new THREE.LoadingManager()
 
-image.onload = () => {
-    const texture = new THREE.Texture(image)
+loadingManager.onStart = () => {
+    console.log('onStart')
 }
+loadingManager.onLoaded = () => {
+    console.log('onLoaded')
+}
+loadingManager.onProgress = () => {
+    console.log('onProgress')
+}
+loadingManager.onError = () => {
+    console.log('onError')
+}
+
+const textureLoader = new THREE.TextureLoader(loadingManager)
+const texture = textureLoader.load(
+    '/textures/door/color.jpg',
+    () => {
+    
+    },
+    () => {
+    
+    },
+    () => {
+        console.log('error')
+    }
+)
+texture.colorSpace = THREE.SRGBColorSpace
+
 /**
  * Base
  */
@@ -19,7 +47,7 @@ const scene = new THREE.Scene()
  * Object
  */
 const geometry = new THREE.BoxGeometry(1, 1, 1)
-const material = new THREE.MeshBasicMaterial({ color: 0xff0000 })
+const material = new THREE.MeshBasicMaterial({ map: texture })
 const mesh = new THREE.Mesh(geometry, material)
 scene.add(mesh)
 
